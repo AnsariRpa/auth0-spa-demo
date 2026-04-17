@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Auth0 Demo</title>
+  <script src="https://cdn.auth0.com/js/auth0-spa-js/2.0/auth0-spa-js.production.js"></script>
+</head>
+<body>
+
+<h2>Auth0 Login Demo</h2>
+
+<button onclick="login()">Login</button>
+<button onclick="logout()">Logout</button>
+
+<pre id="user"></pre>
+
+<script>
+  let auth0Client;
+
+  async function init() {
+    auth0Client = await auth0.createAuth0Client({
+      domain: "dev-fxoi6icp2hnqf61h.us.auth0.com",
+      clientId: "zE5qFXpKWTZ4hKIvU3Q3vWXcSgrdflVT",
+      authorizationParams: {
+        redirect_uri: window.location.origin
+      }
+    });
+
+    if (window.location.search.includes("code=")) {
+      await auth0Client.handleRedirectCallback();
+      window.history.replaceState({}, document.title, "/");
+    }
+
+    const isAuthenticated = await auth0Client.isAuthenticated();
+
+    if (isAuthenticated) {
+      const user = await auth0Client.getUser();
+      document.getElementById("user").innerText =
+        JSON.stringify(user, null, 2);
+    }
+  }
+
+  async function login() {
+    await auth0Client.loginWithRedirect();
+  }
+
+  async function logout() {
+    auth0Client.logout({
+      logoutParams: {
+        returnTo: window.location.origin
+      }
+    });
+  }
+
+  init();
+</script>
+
+</body>
+</html>
